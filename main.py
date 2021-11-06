@@ -7,7 +7,7 @@ import task3.lib
 import task3.lib.predict as pred
 
 #task2
-# from task2.lib.Task2 import *
+from task2.lib.Task2 import *
 
 
 def make_final_json(task2_answer):
@@ -50,7 +50,7 @@ def main(args):
     # data_path 나중에 대회 데이터셋 경로로 바꾸기 
     if args.run_single_task is None or args.run_single_task == 2:
         data_path = 'task2/temp_data'
-        # task2_answer = task2_inference(data_path)
+        task2_answer = task2_inference(data_path)
 
     for i in range(n_set): #n_set : number of set
         args.set_num = f"set_0" + str(i+1) if n_set == 5 else args.set_num

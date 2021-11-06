@@ -19,12 +19,13 @@ from task3.lib.alphapose.scripts.demo_track_api import SingleImageAlphaPose
 from task3.lib.alphapose.alphapose.utils.config import update_config
 
 class PoseEstimate:
-    def __init__(self, crop_imgs=None, new_id_list=None, device=None, max_frames=50, threshold=0.4):
+    def __init__(self, crop_imgs=None, new_id_list=None, device=None, max_frames=50, threshold=0.4, isReleaseMode=False):
         self.max_frames = max_frames
         self.threshold = threshold
         self.crop_imgs = crop_imgs
         self.new_id_list = new_id_list
         self.device = device
+        self.release_mode = isReleaseMode
 
     def cosine_distance(self, x, y, normalized=False):
         if not normalized:
@@ -135,7 +136,7 @@ class PoseEstimate:
                 if var > 1e-05:
                     movement_id[person_id] = 0
                     continue
-                if self.release == FALSE:
+                if self.release_mode == False:
                     for f, d in framelist_temp.items():
                         if d == max_delta:
                             print(str(f)+' frame is max for '+str(d)+': '+str(person_id))
@@ -172,7 +173,7 @@ class PoseEstimate:
             else:
                 stationary = stationary + 1
             idx = idx+1
-        if self.release == FALSE:
+        if self.release_mode == False:
             print('All Pose Estimation Done. (%.3fs)' % (time.time() - t0))
 
         return moving, stationary, (moving+stationary)

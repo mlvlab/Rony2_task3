@@ -441,7 +441,7 @@ class func_task3:
         "TODO: 사람으로 판단한 id만 갖고 있는 new_ids_updated를 어떻게 다음으로 넘겨 줄 것인가."
         
         # pose estimation (moving or not) with args-pose
-        pose_estimator = PoseEstimate(crop_imgs=crop_img, new_id_list=new_ids_updated, device=self.device)
+        pose_estimator = PoseEstimate(crop_imgs=crop_img, new_id_list=new_ids_updated, device=self.device, isReleaseMode=self.release_mode)
         self.pred_move, self.pred_stay, self.pred_total = pose_estimator.check_movement()
         
         self.lap_time['pose-estimation'] = time.time() - t0
