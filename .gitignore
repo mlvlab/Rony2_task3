@@ -1,19 +1,21 @@
 # Rony2
 
-../task2/weights/marg_ckpt.pt
-../task3/conf/task3.yaml
-../task3/lib/alphapose/detector/tracker/data/JDE-1088x608-uncertainty
-../task3/lib/alphapose/detector/yolo/data/yolov3-spp.weights
-../task3/lib/alphapose/pretrained_models/fast_res50_256x192.pth
-../task3/lib/deep_sort_pytorch/deep_sort/deep/checkpoint/ckpt.t7
-../task3/lib/reid/references/ff.pickle
-../task3/lib/reid/weights/ff.pickle/osnet_x1_0_market_256x128_amsgrad_ep150_stp60_lr0.0015_b64_fb10_softmax_labelsmooth_flip.pth
-../task3/lib/yolov5/weights/best.pt
-../task3/lib/yolov5/weights/yolov5l.pt
-../task3/lib/yolov5/weights/yolov5m.pt
-../task3/lib/yolov5/weights/yolov5m6.pt
-../task3/lib/yolov5/weights/yolov5s.pt
-../task3/lib/yolov5/weights/yolov5x.pt
+docker/
+task2/temp_data/
+task2/weights/marg_ckpt.pt
+#task3/conf/task3.yaml
+task3/lib/alphapose/detector/tracker/data/JDE-1088x608-uncertainty
+task3/lib/alphapose/detector/yolo/data/yolov3-spp.weights
+task3/lib/alphapose/pretrained_models/fast_res50_256x192.pth
+task3/lib/deep_sort_pytorch/deep_sort/deep/checkpoint/ckpt.t7
+task3/lib/reid/references/ff.pickle
+task3/lib/reid/weights/ff.pickle/osnet_x1_0_market_256x128_amsgrad_ep150_stp60_lr0.0015_b64_fb10_softmax_labelsmooth_flip.pth
+task3/lib/yolov5/weights/best.pt
+task3/lib/yolov5/weights/yolov5l.pt
+task3/lib/yolov5/weights/yolov5m.pt
+task3/lib/yolov5/weights/yolov5m6.pt
+task3/lib/yolov5/weights/yolov5s.pt
+task3/lib/yolov5/weights/yolov5x.pt
 
 
 
