@@ -7,7 +7,7 @@ import task3.lib
 import task3.lib.predict as pred
 
 #task2
-from task2.lib.Task2 import *
+# from task2.lib.Task2 import *
 
 
 def make_final_json(task2_answer):
@@ -48,8 +48,9 @@ def main(args):
     
     # task_2 - 5 set 
     # data_path 나중에 대회 데이터셋 경로로 바꾸기 
-    data_path = 'task2/temp_data'
-    task2_answer = task2_inference(data_path)
+    if args.run_single_task is None or args.run_single_task == 2:
+        data_path = 'task2/temp_data'
+        # task2_answer = task2_inference(data_path)
 
     for i in range(n_set): #n_set : number of set
         args.set_num = f"set_0" + str(i+1) if n_set == 5 else args.set_num
@@ -57,24 +58,29 @@ def main(args):
 
         # task_1
         # todo
-
-        
+        if args.run_single_task is None or args.run_single_task == 1:
+            pass
 
         # task_3
-        t3_data = []
-        t3 = pred.func_task3(args)
-        t3_res_pred_move, t3_res_pred_stay, t3_res_pred_total = t3.run()
-        t3_data.append(t3_res_pred_move)
-        t3_data.append(t3_res_pred_stay)
-        t3_data.append(t3_res_pred_total)
+        if args.run_single_task is None or args.run_single_task == 3:
+            t3_data = []
+            t3 = pred.func_task3(args)
+            t3_res_pred_move, t3_res_pred_stay, t3_res_pred_total = t3.run()
+            t3_data.append(t3_res_pred_move)
+            t3_data.append(t3_res_pred_stay)
+            t3_data.append(t3_res_pred_total)
 
-        # save result to json file
-        save_task3_json(task_num="task3_answer", set_num=args.set_num, pred_data=t3_data, file_path=args.json_path)
+            # save result to json file
+            save_task3_json(task_num="task3_answer", set_num=args.set_num, pred_data=t3_data, file_path=args.json_path)
 
         # task_4
         # todo
+        if args.run_single_task is None or args.run_single_task == 4:
+            pass
     
-    make_final_json(task2_answer)
+    if args.run_single_task is None or args.run_single_task == 2:
+        make_final_json(task2_answer)
+
     print("TOTAL INFERENCE TIME : ", time.time()-start)
 
     
@@ -85,9 +91,9 @@ if __name__ == '__main__':
     # p.add_argument("--root_dir", type=str, default="/home/[Team_ID]")
     # p.add_argument("--temporary_dir", type=str, default="/home/agc2021/temp")
     ###
-    p.add_argument("--dataset_dir", type=str, default="../drone") # /set_01, /set_02, /set_03, /set_04, /set_05
+    p.add_argument("--dataset_dir", type=str, default="../task3/dataset") # /set_01, /set_02, /set_03, /set_04, /set_05
     p.add_argument("--root_dir", type=str, default="./")
-    p.add_argument("--temporary_dir", type=str, default="../output3")
+    p.add_argument("--temporary_dir", type=str, default="../task3/temp")
     
     ###
     p.add_argument("--json_path", type=str, default="answersheet_3_00_Rony2.json")
@@ -96,9 +102,12 @@ if __name__ == '__main__':
     p.add_argument("--device", default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     p.add_argument("--test", type = int, default = '3', help = 'number of video')
 
+    p.add_argument('--run_single_task', type=int, default = None)
     p.add_argument("--release_mode", action='store_true', default=False)
     
     args = p.parse_args()
+
+    assert(args.run_single_task in (1, 2, 3, 4, None))
 
     main(args)
 

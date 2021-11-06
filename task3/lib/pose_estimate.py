@@ -19,10 +19,11 @@ from task3.lib.alphapose.scripts.demo_track_api import SingleImageAlphaPose
 from task3.lib.alphapose.alphapose.utils.config import update_config
 
 class PoseEstimate:
-    def __init__(self, pickle_path=None, device=None, max_frames=50, threshold=0.4):
+    def __init__(self, crop_imgs=None, new_id_list=None, device=None, max_frames=50, threshold=0.4):
         self.max_frames = max_frames
         self.threshold = threshold
-        self.pickle_path = pickle_path
+        self.crop_imgs = crop_imgs
+        self.new_id_list = new_id_list
         self.device = device
 
     def cosine_distance(self, x, y, normalized=False):
@@ -34,17 +35,11 @@ class PoseEstimate:
     def check_movement(self):
         config_alphapose = "task3/lib/alphapose/configs/alphapose.yaml"
 
-        # Initialize
+        # Assertion
+        assert(os.path.exists(config_alphapose))
         
+        # Initialize
         device = select_device(self.device)
-        '''
-        out = opt.output
-        if os.path.exists(out):
-            shutil.rmtree(out)
-        os.makedirs(out)
-        ### max_frames = opt.max_frames
-        output_txt_path = out + '/output.txt'
-        '''
         t0 = time.time()
         moving = 0
         stationary = 0
@@ -60,29 +55,23 @@ class PoseEstimate:
         t0 = time.time()
 
         ### pickle_path = opt.source
-        with open(self.pickle_path, 'rb') as pkl:
-            videos = pickle.load(pkl)
+        videos = self.crop_imgs
         
         pose_list = {} # {(person_id): (img_num, pose)}
         person_list = []
         movement_id = {}
         pose_delta = {}
         max_pose_delta = []
-        # txt = open(output_txt_path, 'w')
 
         for video in videos:
             for person_id, images in video.items(): 
                 if person_id not in person_list:
                     person_list.append(person_id)
-                t1 = time_sync()
+                #t1 = time_sync()
+                
                 cnt = min(len(images), self.max_frames)
-                '''
-                id_path = str(Path(out) / Path(str(person_id)))
-                if os.path.exists(id_path):
-                    shutil.rmtree(id_path)
-                os.makedirs(id_path)
-                '''
-                i = 0
+                
+                i = 0             
                 for img in tqdm(images):
                     if i > cnt:
                         break
@@ -90,7 +79,7 @@ class PoseEstimate:
                     avg_brightness = np.average(img_brightness)
                     if avg_brightness < 30:
                         continue
-                    # save_path = str(id_path / Path(str(i))) + '.jpg'
+
                     track_ = [np.int64(0), np.int64(0), np.int64(img.shape[1]), np.int64(img.shape[0]), np.int64(person_id)]
                     tracklet = [np.array(track_)]
                     pose = demo.process('id: '+str(person_id), img, tracklet)
@@ -107,23 +96,20 @@ class PoseEstimate:
                                 break
                         if score_low == True:                            
                             continue
-                        '''
-                        txt.write(str(i) + '\n')
-                        print(pose, file=txt)
-                        print(img_brightness, file=txt)
-                        print(avg_brightness, file=txt)
-                        '''
+                        
                         pose_img = demo.vis(img, pose)
-                        # cv2.imwrite(save_path, pose_img)
 
                         if person_id not in pose_list:
                             pose_list[person_id] = list()
                         pose_list[person_id].append((i, keypoints))
                         i = i + 1
-                t2 = time_sync()
-                print('ID %s Pose Estimation Done. (%.3fs)' % (str(person_id), t2 - t1))
-        # txt.close()
-        # varlist = []
+                
+                if person_id not in pose_list:
+                    movement_id[person_id] = 0
+
+                #t2 = time_sync()
+                #print('ID %s Pose Estimation Done. (%.3fs)' % (str(person_id), t2 - t1))
+
         framelist_temp = {}
         for person_id, framelist in pose_list.items():
             for i in range(len(framelist)-1):
@@ -137,7 +123,6 @@ class PoseEstimate:
                 delta_2 = self.cosine_distance(pose_val_np_2, next_pose_np_2)
                 delta = delta_1 + delta_2
                 framelist_temp[frame_num] = delta
-                # print(person_id, i, delta, delta_1, delta_2)
 
                 if person_id not in pose_delta:
                     pose_delta[person_id] = list()
@@ -150,61 +135,44 @@ class PoseEstimate:
                 if var > 1e-05:
                     movement_id[person_id] = 0
                     continue
-                # varlist.append((var,person_id))
-                for f, d in framelist_temp.items():
-                    if d == max_delta:
-                        print(str(f)+' frame is max for '+str(d)+': '+str(person_id))
-                # max_delta = sum(pose_delta[person_id])
+                if self.release == FALSE:
+                    for f, d in framelist_temp.items():
+                        if d == max_delta:
+                            print(str(f)+' frame is max for '+str(d)+': '+str(person_id))
                 max_pose_delta.append((person_id, max_delta))
-            
+            else:
+                movement_id[person_id] = 0 # delta 값을 계산하지 못하면 (판단하기에 충분한 프레임이 없으면) -> 움직이지 않는 것으로 판단
+
             max_pose_delta.sort(key=lambda x: x[1], reverse=True)
-            # varlist.sort(key=lambda x: x[0], reverse=True)
 
         for (person_id, max_delta) in max_pose_delta:
-            # print(person_id, max_delta)
             if max_delta >= self.threshold:
                 # moving
                 movement_id[person_id] = 1
-                moving = moving + 1
             else:
                 # not moving
                 movement_id[person_id] = 0
-                stationary = stationary + 1
+            
         
-        return moving, stationary, (moving+stationary)
-        '''
-        for i, n in movement_id.items():
-            if n == 1:
-                print('moving '+str(i))
+        new_people_num = len(self.new_id_list)
+        new_movement_id = [0] * new_people_num
+        for i in range(new_people_num):
+            new_people = self.new_id_list[i]
+            for ori_person in new_people:
+                if movement_id[ori_person] == 1:
+                    new_movement_id[i] = 1
+                    break # 동영상 내 하나라도 움직이면 move 로 판단.
+                else:
+                    new_movement_id[i] = 0
+        
+        idx = 1
+        for flag in new_movement_id:
+            if flag == 1:
+                moving = moving + 1
             else:
-                print('stationary '+str(i))
-        '''
+                stationary = stationary + 1
+            idx = idx+1
+        if self.release == FALSE:
+            print('All Pose Estimation Done. (%.3fs)' % (time.time() - t0))
 
-        #for (var, person_id) in varlist:
-        #    print('var of ' + str(person_id)+': '+str(var))
-        print('Movement Prediction Done. (%.3fs)' % (time.time() - t0))
-
-'''
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
-    parser.add_argument('--output', type=str, default='/home/ubuntu/juyeon/track_and_count/pose_estimation', help='output folder')  # output folder
-    parser.add_argument('--source', type=str, default='/home/ubuntu/task3/references/output_video/fairmot/1/1.pickle', help='source pickle folder') # input folder
-    parser.add_argument('--max_frames', type=int, default=20, help='maximum number of frames to use when detecting movement')
-    parser.add_argument('--thres', type=float, default=0.009, help='threshold for predicting movement')
-    opt = parser.parse_args()
-    print(opt)
-
-    check_movement()
-'''
-
-#  Nose         [0]
-#  Left Eye     [1], Right Eye     [2],
-#  Left Ear     [3], Right Ear     [4],
-#  Left Shoulder[5], Right Shoulder[6],
-#  Left Elbow   [7], Right Elbow   [8],
-#  Left Wrist   [9], Right Wrist  [10], 
-#  Left Hip    [11], Right Hip    [12],
-#  Left Knee   [13], Right knee   [14],
-#  Left Ankle  [15], Right Ankle  [16],
-#  Neck        [17]
+        return moving, stationary, (moving+stationary)

@@ -43,6 +43,7 @@ def attempt_download(file, repo='ultralytics/yolov5'):  # from utils.downloads i
     # Attempt file download if does not exist
     file = Path(str(file).strip().replace("'", ''))
 
+    #@@@@@ nono: urllib
     if not file.exists():
         # URL specified
         name = Path(urllib.parse.unquote(str(file))).name  # decode '%2F' to '/' etc.
