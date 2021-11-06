@@ -95,6 +95,8 @@ if __name__ == '__main__':
     p.add_argument("--set_num", type=str, default="all_sets") 
     p.add_argument("--device", default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     p.add_argument("--test", type = int, default = '3', help = 'number of video')
+
+    p.add_argument("--release_mode", action='store_true', default=False)
     
     args = p.parse_args()
 

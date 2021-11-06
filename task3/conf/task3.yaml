@@ -18,3 +18,8 @@ augment: True
 
 config_deepsort: task3/lib/deep_sort_pytorch/configs/deep_sort.yaml
 half: True
+
+frame_skip: 2
+
+reid_thresh: 9.5
+ff_rm_thresh: 5.8
