@@ -1,0 +1,20 @@
+yolo_weights: task3/lib/yolov5/weights/yolov5m.pt
+deep_sort_weights: task3/lib/deep_sort_pytorch/deep_sort/deep/checkpoint/ckpt.t7
+
+img_size: 640
+conf_thres: 0.75
+iou_thres: 0.6
+fourcc: mp4v
+
+show_vid: False
+save_vid: True
+save_txt: False
+save_jpg: True
+frame_skip : 10
+
+classes: 0
+agnostic_nms: True
+augment: True
+
+config_deepsort: task3/lib/deep_sort_pytorch/configs/deep_sort.yaml
+half: True
