@@ -3,7 +3,7 @@
 docker/
 task2/temp_data/
 task2/weights/marg_ckpt.pt
-#task3/conf/task3.yaml
+task3/conf/task3.yaml
 task3/lib/alphapose/detector/tracker/data/JDE-1088x608-uncertainty
 task3/lib/alphapose/detector/yolo/data/yolov3-spp.weights
 task3/lib/alphapose/pretrained_models/fast_res50_256x192.pth
