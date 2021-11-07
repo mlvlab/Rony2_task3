@@ -2,7 +2,7 @@ yolo_weights: task3/lib/yolov5/weights/yolov5m.pt
 deep_sort_weights: task3/lib/deep_sort/deep_sort/deep/checkpoint/ckpt.t7
 
 img_size: 640
-conf_thres: 0.75
+conf_thres: 0.5
 iou_thres: 0.6
 fourcc: mp4v
 

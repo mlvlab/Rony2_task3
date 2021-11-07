@@ -207,8 +207,8 @@ class func_task3:
         self.release_mode = args.release_mode
         self.set_num = args.set_num # set_num01, 1
         self.test_num = args.test
-        set_index = int(args.set_num.split('_')[1])
         self.input_paths = [os.path.join(args.dataset_dir, args.set_num, f'set0{set_index}_drone0{i+1}.mp4') for i in range(self.test_num)]
+        # self.input_paths = [os.path.join(args.dataset_dir, f'set0{set_index}_drone0{i+1}.mp4') for i in range(self.test_num)]
         self.temporary_dir = os.path.join(args.temporary_dir, f't3_res/{self.set_num}')
         
         if self.release_mode == False:
@@ -467,8 +467,8 @@ class func_task3:
             print("predict > move:{} | stay:{} | total:{}".format(pred_move, pred_stay, pred_total))
             print("error : ", error) 
 
-        # return self.pred_move, self.pred_stay, self.pred_total
-        return {f"{self.set_num}": [self.pred_move, self.pred_stay, self.pred_total]}
+        return self.pred_move, self.pred_stay, self.pred_total
+        # return [self.pred_move, self.pred_stay, self.pred_total]
 
 
 

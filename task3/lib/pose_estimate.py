@@ -19,7 +19,7 @@ from task3.lib.alphapose.scripts.demo_track_api import SingleImageAlphaPose
 from task3.lib.alphapose.alphapose.utils.config import update_config
 
 class PoseEstimate:
-    def __init__(self, crop_imgs=None, new_id_list=None, device=None, max_frames=50, threshold=0.4, isReleaseMode=False):
+    def __init__(self, crop_imgs=None, new_id_list=None, device=None, max_frames=50, threshold=0.01, isReleaseMode=False):
         self.max_frames = max_frames
         self.threshold = threshold
         self.crop_imgs = crop_imgs
