@@ -6,25 +6,25 @@
 ### Setup manual
 1. create python conda environment
 
-    `conda env create -f challenge.yaml`
+    - `conda env create -f challenge.yaml`
 
 2. install torch reid
 
-    `cd task3/lib/reid/deep-person-reid/`
+    - `cd task3/lib/reid/deep-person-reid/`
 
-    `python setup.py develop`
+    - `python setup.py develop`
 
 3. install alphapose 
 
-    `conda install -c anaconda gxx_linux-64`
+    - `conda install -c anaconda gxx_linux-64`
 
-    `ln -s /home/ubuntu/anaconda3/envs/challenge/bin/x86_64-conda_cos6-linux-gnu-gcc /home/ubuntu/anaconda3/envs/challenge/bin/gcc `
+    - `ln -s /home/ubuntu/anaconda3/envs/challenge/bin/x86_64-conda_cos6-linux-gnu-gcc /home/ubuntu/anaconda3/envs/challenge/bin/gcc `
 
-    `ln -s /home/ubuntu/anaconda3/envs/challenge/bin/x86_64-conda_cos6-linux-gnu-g++ /home/ubuntu/anaconda3/envs/challenge/bin/g++`
+    - `ln -s /home/ubuntu/anaconda3/envs/challenge/bin/x86_64-conda_cos6-linux-gnu-g++ /home/ubuntu/anaconda3/envs/challenge/bin/g++`
 
-    `cd task3/lib/alphapose/ `
+    - `cd task3/lib/alphapose/ `
 
-    `python setup.py build develop`
+    - `python setup.py build develop`
 
 
 4. overwrite weights 
