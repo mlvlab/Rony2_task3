@@ -187,7 +187,7 @@ if __name__ == '__main__':
         name='alphapose',
         version=get_version(),
         description='Code for AlphaPose',
-        long_description=readme(),
+        # long_description=readme(),
         keywords='computer vision, human pose estimation',
         url='https://github.com/MVIG-SJTU/AlphaPose',
         packages=find_packages(exclude=('data', 'exp',)),

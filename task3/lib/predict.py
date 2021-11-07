@@ -61,17 +61,17 @@ def detect(opt, video_num):
     out, source, yolo_weights, deep_sort_weights, show_vid, save_vid, save_txt, save_jpg, imgsz, evaluate, half = \
         opt.output, opt.source, opt.yolo_weights, opt.deep_sort_weights, opt.show_vid, opt.save_vid, \
             opt.save_txt, opt.save_jpg, opt.img_size, opt.evaluate, opt.half
-    weights = yolo_weights
-    save_img = True
 
     # Initialize
-    set_logging()
+    if opt.release_mode == False:
+        set_logging()
     device = select_device(opt.device)
     half = device.type != 'cpu'  # half precision only supported on CUDA
-    print("__device__ :", device)
+    if opt.release_mode == False:
+        print("__device__ :", device)
 
     # Load model
-    model = attempt_load(weights, map_location=device)  # load FP32 model
+    model = attempt_load(yolo_weights, map_location=device)  # load FP32 model
     imgsz = check_img_size(imgsz, s=model.stride.max())  # check img_size
     if half: model.half()  # to FP16
     mkdir_if_missing(out)
@@ -194,7 +194,7 @@ def detect(opt, video_num):
                         vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
                     vid_writer.write(im0)
 
-    if save_txt or save_img or save_vid:
+    if save_txt or save_vid:
         print('Results saved to %s' % Path(out))
 
     print('Done. (%.3fs)' % (time.time() - t0))
@@ -207,12 +207,14 @@ class func_task3:
         self.release_mode = args.release_mode
         self.set_num = args.set_num # set_num01, 1
         self.test_num = args.test
-        self.input_paths = [os.path.join(args.dataset_dir, args.set_num, f'set01_drone0{i+1}.mp4') for i in range(self.test_num)]
+        set_index = int(args.set_num.split('_')[1])
+        self.input_paths = [os.path.join(args.dataset_dir, args.set_num, f'set0{set_index}_drone0{i+1}.mp4') for i in range(self.test_num)]
         self.temporary_dir = os.path.join(args.temporary_dir, f't3_res/{self.set_num}')
         
-        if os.path.exists(self.temporary_dir):
-            shutil.rmtree(self.temporary_dir)  # delete output folder
-            os.makedirs(self.temporary_dir)  # make new output folder
+        if self.release_mode == False:
+            if os.path.exists(self.temporary_dir):
+                shutil.rmtree(self.temporary_dir)  # delete output folder
+                os.makedirs(self.temporary_dir)  # make new output folder
 
         with open ('task3/conf/task3.yaml') as f:
             conf = yaml.load(f, Loader=yaml.FullLoader)
@@ -441,7 +443,7 @@ class func_task3:
         "TODO: 사람으로 판단한 id만 갖고 있는 new_ids_updated를 어떻게 다음으로 넘겨 줄 것인가."
         
         # pose estimation (moving or not) with args-pose
-        pose_estimator = PoseEstimate(crop_imgs=crop_img, new_id_list=new_ids_updated, device=self.device, isReleaseMode=self.release_mode)
+        pose_estimator = PoseEstimate(crop_imgs=crop_img, new_id_list=new_ids, device=self.device, isReleaseMode=self.release_mode)
         self.pred_move, self.pred_stay, self.pred_total = pose_estimator.check_movement()
         
         self.lap_time['pose-estimation'] = time.time() - t0
@@ -465,7 +467,8 @@ class func_task3:
             print("predict > move:{} | stay:{} | total:{}".format(pred_move, pred_stay, pred_total))
             print("error : ", error) 
 
-        return self.pred_move, self.pred_stay, self.pred_total
+        # return self.pred_move, self.pred_stay, self.pred_total
+        return {f"{self.set_num}": [self.pred_move, self.pred_stay, self.pred_total]}
 
 
 

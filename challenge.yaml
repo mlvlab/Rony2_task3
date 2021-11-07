@@ -1,15 +1,14 @@
-name: agc21
+name: ai_grand_challenge
 channels:
-  - pytorch
-  - conda-forge
+  - anaconda
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main
   - binutils_impl_linux-64=2.31.1=h6176602_1
   - binutils_linux-64=2.31.1=h6176602_9
   - blas=1.0=mkl
-  - ca-certificates=2020.10.14=0
-  - certifi=2020.6.20=py36_0
+  - ca-certificates=2021.10.26=h06a4308_2
+  - certifi=2021.5.30=py36h06a4308_0
   - cudatoolkit=10.2.89=hfd86e86_1
   - dataclasses=0.8=pyh4f3eec9_6
   - freetype=2.11.0=h70c0345_0
@@ -41,7 +40,7 @@ dependencies:
   - openjpeg=2.4.0=h3ad879b_0
   - openssl=1.1.1l=h7f8727e_0
   - pip=21.0.1=py36h06a4308_0
-  - python=3.6.13=h12debd9_1
+  - python=3.6.10=h7579374_2
   - readline=8.1=h27cfd23_0
   - setuptools=58.0.4=py36h06a4308_0
   - six=1.16.0=pyhd3eb1b0_0
@@ -54,15 +53,22 @@ dependencies:
   - pip:
     - absl-py==0.15.0
     - albumentations==0.4.6
+    - amp==1.1.4
+    - asgiref==3.4.1
     - beautifulsoup4==4.10.0
     - cached-property==1.5.2
     - cachetools==4.2.4
+    - caldav==0.1.4
     - charset-normalizer==2.0.7
+    - conformer==0.2.5
+    - coverage==6.1.1
     - cycler==0.11.0
     - cython==0.29.24
     - cython-bbox==0.1.3
     - decorator==4.4.2
+    - django==3.2.9
     - easydict==1.9
+    - einops==0.3.0
     - filelock==3.3.2
     - filterpy==1.4.5
     - flake8==4.0.1
@@ -80,14 +86,17 @@ dependencies:
     - isort==4.3.21
     - jsonpatch==1.32
     - jsonpointer==2.1
+    - julius==0.2.6
     - kiwisolver==1.3.1
     - lap==0.4.0
+    - lxml==4.6.4
     - markdown==3.3.4
     - matplotlib==3.3.4
     - mccabe==0.6.1
     - munkres==1.1.4
     - natsort==7.1.1
     - networkx==2.5.1
+    - nose==1.3.7
     - oauthlib==3.1.1
     - opencv-python==4.5.4.58
     - pandas==1.1.5
@@ -113,6 +122,7 @@ dependencies:
     - seaborn==0.11.2
     - shapely==1.8.0
     - soupsieve==2.2.1
+    - sqlparse==0.4.2
     - tb-nightly==2.8.0a20211101
     - tensorboard==2.7.0
     - tensorboard-data-server==0.6.1
@@ -129,11 +139,12 @@ dependencies:
     - tqdm==4.62.3
     - urllib3==1.26.7
     - visdom==0.1.8.9
+    - vobject==0.9.6.1
     - websocket-client==1.2.1
     - werkzeug==2.0.2
     - wheel==0.37.0
     - yacs==0.1.8
     - yapf==0.31.0
     - zipp==3.6.0
-prefix: /home/anaconda3/envs/agc21
+prefix: /home/ubuntu/anaconda/envs/ai_grand_challenge
 
