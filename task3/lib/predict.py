@@ -48,11 +48,11 @@ def plot_one_box(x, img, color=None, label=None, line_thickness=None):
         c2 = c1[0] + t_size[0], c1[1] - t_size[1] - 3
         cv2.rectangle(img, c1, c2, color, -1, cv2.LINE_AA)  # filled
         cv2.putText(img, label, (c1[0], c1[1] - 2), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
-
+'''
 def mkdir_if_missing(d):
     if not os.path.exists(d):
         os.makedirs(d)
-
+'''
 def detect(opt, video_num):
     assert video_num in {1, 2, 3}
 
@@ -74,7 +74,7 @@ def detect(opt, video_num):
     model = attempt_load(yolo_weights, map_location=device)  # load FP32 model
     imgsz = check_img_size(imgsz, s=model.stride.max())  # check img_size
     if half: model.half()  # to FP16
-    mkdir_if_missing(out)
+    #mkdir_if_missing(out)
 
     # Set Dataloader
     t0 = time.time()
@@ -156,7 +156,9 @@ def detect(opt, video_num):
 
                     for d in trackers:
                         tl, tt, tr, td = d[0], d[1], d[2], d[3]
-
+                        if (tr-tl) < 60 or (td-tt) < 50:
+                            continue
+                        
                         crop_img = im0s[tt:td, tl:tr].copy()
                         pid = video_num * 1000 + d[-1]
 
@@ -169,8 +171,8 @@ def detect(opt, video_num):
                             vn_dir = os.path.join(out, '{:d}'.format(video_num))
                             pid_dir = os.path.join(vn_dir, '{:d}'.format(pid))
                             fid_path = os.path.join(pid_dir, '{:04d}_{:04d}.jpg'.format(pid, frame_idx))
-                            mkdir_if_missing(vn_dir)
-                            mkdir_if_missing(pid_dir)
+                            #mkdir_if_missing(vn_dir)
+                            #mkdir_if_missing(pid_dir)
                             cv2.imwrite(fid_path, crop_img)
 
                     for d in trackers:
@@ -240,7 +242,6 @@ class func_task3:
         self.config_deepsort = conf["config_deepsort"]
         self.half = conf["half"]
         self.img_size = check_img_size(self.img_size)
-        self.mtp = False
         # for speed-up 
         self.frame_skip = conf["frame_skip"]
         # re-id parameters
@@ -251,8 +252,7 @@ class func_task3:
         self.reid_ff_path = os.path.join(args.root_dir, f'task3/lib/reid/references/ff.pickle')
         self.fff_train_np_path = "task3/lib/remove_ff/fff_train_np.pkl" # train set features of firefighters
         # pose estimation parameters
-        self.alphapose_conf = 'task3/lib/alphapose/configs/alphapose.yaml'
-        self.alphapose_weights = 'task3/lib/alphapose/pretrained_models/fast_res50_256x192.pth'
+        self.pose_weights = 'task3/lib/pose_estimate/pose_estimate_weight.pth'
 
         # assert
         assert(os.path.exists(self.yolo_weights))
@@ -260,12 +260,8 @@ class func_task3:
         assert(os.path.exists(self.config_deepsort))
         assert(os.path.exists(self.reid_weights_path))
         assert(os.path.exists(self.fff_train_np_path))
-        assert(os.path.exists(self.alphapose_conf))
-        assert(os.path.exists(self.alphapose_weights))
-        # ???
-        assert(os.path.exists('task3/lib/alphapose/detector/yolo/data/yolov3-spp.weights'))
-        assert(os.path.exists('task3/lib/alphapose/detector/tracker/data/JDE-1088x608-uncertainty'))
-
+        assert(os.path.exists(self.pose_weights))
+    
         # torch-reid
         self.extractor = FeatureExtractor(
             model_name='osnet_x1_0',
@@ -304,6 +300,9 @@ class func_task3:
 
         for j in range(len(inputs)):
             for i in inputs[j]:
+                # remove id with few images
+                if len(inputs[j][i]) < 5:
+                    continue
                 ids.append(i)
                 reid_ft.append(self.extractor(inputs[j][i]))
 
@@ -342,6 +341,7 @@ class func_task3:
             print(" new ids : {}".format(new_ids))
 
         newIds_for_poseEstim = [ [] * n for i in range(len(new_ids)) ]
+        moveIds_for_poseEstim = []
 
         n_move = 0
         for i in range(len(new_ids)):
@@ -350,32 +350,34 @@ class func_task3:
             move = 0x000
             fig_uid_n = len(new_ids[i])//2
             for k, uid in enumerate(self.get_uniqueIds_in_newIdxs(i, ids, new_ids)):
-                vn = self.get_videoNum_in_dicts(uid, inputs)
-                imgs = inputs[vn-1][uid]
+                # vn = self.get_videoNum_in_dicts(uid, inputs)
+                vn = uid//1000
+                #
+                # imgs = inputs[vn-1][uid]
                 if fig_uid_n == k: 
                     fig_vn = vn 
                     fig_uid = uid
-                    fig_n = len(imgs)//2
-                if self.release_mode == False: 
-                    print(" >", vn, uid, imgs[0].shape) 
-                    if vn == 1: move |= 0x100
-                    elif vn == 2: move |= 0x010
-                    elif vn == 3: move |= 0x001    
+                    # fig_n = len(imgs)//2
+                # if self.release_mode == False: 
+                #     print(" >", vn, uid, imgs[0].shape) 
+                if vn == 1: move |= 0x100
+                elif vn == 2: move |= 0x010
+                elif vn == 3: move |= 0x001    
                 newIds_for_poseEstim[i].append(uid)
 
-            if self.release_mode == False:
+            #if self.release_mode == False:
                 # todo : exists or not in all videos 
-                if move in (0x100, 0x110, 0x010):
-                    n_move += 1
+            if move in (0x100, 0x110, 0x010):
+                n_move += 1
+                moveIds_for_poseEstim.extend(newIds_for_poseEstim[i])
+                if self.release_mode == False:
                     print(" > move") 
-        
-        # todo 
-        move_list = []
+    
 
         if self.release_mode == False:
             print(" new ids : {}".format(newIds_for_poseEstim))
 
-        return newIds_for_poseEstim, move_list
+        return newIds_for_poseEstim, moveIds_for_poseEstim
 
     # get unique-ids in new-index
     def get_uniqueIds_in_newIdxs(self, i, ids, newIdxs):
@@ -396,18 +398,14 @@ class func_task3:
         crop_img = []
         new_ids = []
         
-        if self.mtp: # ! CANNOT USE
-            def mtp_run(i): 
-                out_dict = self.tracking(i+1)
-                crop_img.append(out_dict)
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                for i in range(self.test_num):
-                    executor.submit(mtp_run, i)
-        else:
+        # mkdir_if_missing(self.output)
+        def mtp_run(i): 
+            self.source = self.input_paths[i]
+            out_dict = self.tracking(i+1)
+            crop_img.append(out_dict)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             for i in range(self.test_num):
-                self.source = self.input_paths[i]
-                out_dict = self.tracking(i+1)
-                crop_img.append(out_dict)
+                executor.submit(mtp_run, i)
 
         if self.release_mode == False:
             with open(f'{self.temporary_dir}/{self.set_num}.pickle', 'wb') as f:
@@ -416,14 +414,15 @@ class func_task3:
         self.lap_time['object-tracking'] = time.time() - t0
 
         # reid extraction & tracklet association with osnet
-        new_ids, _ = self.reid(crop_img)
+        new_ids, move_ids = self.reid(crop_img)
 
         self.lap_time['re-identification'] = time.time() - t0
         
-
+        
         # filter-out False Positives such as FireFighter.
         """ Remove FireFighter"""
-        pred_idx = RFF(crop_img)
+        device = select_device(self.device)
+        pred_idx = RFF(crop_img, device)
         crop_img_ids = []
         for vid_dict in crop_img:
             crop_img_ids.extend(vid_dict.keys())
@@ -442,11 +441,9 @@ class func_task3:
     
         self.lap_time['remove-firefighter'] = time.time() - t0 # [start - RFF]
         "TODO: 사람으로 판단한 id만 갖고 있는 new_ids_updated를 어떻게 다음으로 넘겨 줄 것인가."
-        
-        # pose estimation (moving or not) with args-pose
-        pose_estimator = PoseEstimate(crop_imgs=crop_img, new_id_list=new_ids, device=self.device, isReleaseMode=self.release_mode)
-        self.pred_move, self.pred_stay, self.pred_total = pose_estimator.check_movement()
-        
+        # pose estimation (moving or not)
+        device = select_device(self.device)
+        self.pred_move, self.pred_stay, self.pred_total = PoseEstimate.check_movement(self.pose_weights, crop_img, new_ids_updated, move_ids, device, self.release_mode, self.temporary_dir)
         self.lap_time['pose-estimation'] = time.time() - t0
 
         for i in self.lap_time.keys():
@@ -470,6 +467,5 @@ class func_task3:
 
         return self.pred_move, self.pred_stay, self.pred_total
         # return [self.pred_move, self.pred_stay, self.pred_total]
-
 
 
