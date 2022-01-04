@@ -1,4 +1,4 @@
-# Rony2
+# Rony2_task3
 
 ### How to run task3
     python main.py --set_num set_01 --run_single_task 3
@@ -28,4 +28,5 @@
 
 
 4. overwrite weights 
-weights (11/6) : `ubuntu@14.49.44.85:/home/ubuntu/ai_grand_challenge_weights/Rony2_weights_1106.zip`
+
+ (11/6) : `ubuntu@14.49.44.85:/home/ubuntu/ai_grand_challenge_weights/Rony2_weights_1106.zip`
