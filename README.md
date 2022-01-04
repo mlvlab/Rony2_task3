@@ -1,7 +1,7 @@
 # Rony2
 
 ### How to run task3
-    `python main.py --set_num set_01 --run_single_task 3`
+    python main.py --set_num set_01 --run_single_task 3
 
 ### Setup manual
 1. create python conda environment
